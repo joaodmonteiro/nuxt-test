@@ -1,0 +1,116 @@
+@use 'sass:math';
+
+/// Rounds a number with the specified precision and method
+///
+/// @parameter {Number} $number - The number to round
+/// @parameter {Number} [$precision:0] - The precision to round to
+/// @parameter {String} [$method:round] - The method to use
+/// @return {Number} The rounded number
+///
+/// @example scss
+///   decimal-round(0.333) => 0
+///
+/// @example scss
+///   decimal-round(0.333, 1) => 0.3
+///
+/// @example scss
+///   decimal-round(0.333, 2) => 0.33
+///
+/// @example scss
+///   decimal-round(0.666) => 1
+///
+/// @example scss
+///   decimal-round(0.666, 1) => 0.7
+///
+/// @example scss
+///   decimal-round(0.666, 2) => 0.67
+///
+@function decimal-round($number, $precision: 0, $method: round) {
+  $n: 1;
+
+  // $number must be a number
+  @if type-of($number) != number {
+    @warn '#{$number} is not a number.';
+    @return $number;
+  }
+
+  // $precision must be a unitless number
+  @if type-of($precision) != number {
+    @warn '#{$precision} is not a number.';
+    @return $number;
+  } @else if not unitless($precision) {
+    @warn '#{$precision} has a unit.';
+    @return $number;
+  }
+
+  @for $i from 1 through $precision {
+    $n: $n * 10;
+  }
+
+  @if $method == round {
+    @return math.div(round($number * $n), $n);
+  } @else if $method == ceil {
+    @return math.div(ceil($number * $n), $n);
+  } @else if $method == floor {
+    @return math.div(floor($number * $n), $n);
+  } @else {
+    @warn '#{$method} is undefined keyword.';
+    @return $number;
+  }
+}
+
+/// Ceils a number with the specified precision
+///
+/// @parameter {Number} $number - The number to round
+/// @parameter {Number} [$precision:0] - The precision to round to
+/// @return {Number} The ceiled number
+///
+/// @example scss
+///   decimal-ceil(0.333) => 1
+///
+/// @example scss
+///   decimal-ceil(0.333, 1) => 0.4
+///
+/// @example scss
+///   decimal-ceil(0.333, 2) => 0.34
+///
+/// @example scss
+///   decimal-ceil(0.666) => 1
+///
+/// @example scss
+///   decimal-ceil(0.666, 1) => 0.7
+///
+/// @example scss
+///   decimal-ceil(0.666, 2) => 0.67
+///
+@function decimal-ceil($number, $precision: 0) {
+  @return decimal-round($number, $precision, ceil);
+}
+
+/// Floors a number with the specified precision
+///
+/// @parameter {Number} $number - The number to round
+/// @parameter {Number} [$precision:0] - The precision to round to
+/// @return {Number} The floored number
+///
+/// @example scss
+///   decimal-floor(0.333) => 0
+///
+/// @example scss
+///   decimal-floor(0.333, 1) => 0.3
+///
+/// @example scss
+///   decimal-floor(0.333, 2) => 0.33
+///
+/// @example scss
+///   decimal-floor(0.666) => 0
+///
+/// @example scss
+///   decimal-floor(0.666, 1) => 0.6
+///
+/// @example scss
+///   decimal-floor(0.666, 2) => 0.66
+///
+@function decimal-floor($number, $precision: 0) {
+  @return decimal-round($number, $precision, floor);
+}

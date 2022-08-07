@@ -1,0 +1,43 @@
+version: 2
+registries:
+  yes-studio:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{ secrets.YES_AUTH_TOKEN }}
+updates:
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:30'
+      timezone: 'Europe/London'
+    assignees:
+      - yesstudioadmin
+    commit-message:
+      prefix: fix
+      prefix-development: chore
+      include: scope
+    open-pull-requests-limit: 10
+    reviewers:
+      - yesstudioadmin
+    target-branch: 'develop'
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:30'
+      timezone: 'Europe/London'
+    assignees:
+      - yesstudioadmin
+    commit-message:
+      prefix: fix
+      prefix-development: chore
+      include: scope
+    open-pull-requests-limit: 10
+    registries:
+      - yes-studio
+    reviewers:
+      - yesstudioadmin
+    target-branch: 'develop'

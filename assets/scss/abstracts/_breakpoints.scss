@@ -1,0 +1,172 @@
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:string';
+
+$breakpoints: (
+  xxsmall: (
+    start: null,
+    end: 575px,
+  ),
+  xsmall: (
+    start: 576px,
+    end: 767px,
+  ),
+  small: (
+    start: 768px,
+    end: 991px,
+  ),
+  medium: (
+    start: 992px,
+    end: 1199px,
+  ),
+  large: (
+    start: 1200px,
+    end: 1399px,
+  ),
+  xlarge: (
+    start: 1400px,
+    end: null,
+  ),
+);
+
+/* stylelint-disable-next-line scss/dollar-variable-empty-line-before */
+$breakpoint-variations: ();
+
+@each $breakpoint-name, $breakpoint-value in $breakpoints {
+  $breakpoint-start: map.get($breakpoint-value, start);
+  $breakpoint-end: map.get($breakpoint-value, end);
+
+  @if $breakpoint-start and $breakpoint-end {
+    $breakpoint-variations: map.merge(
+      $breakpoint-variations,
+      (
+        (string.unquote($breakpoint-name) + '-'):
+          (
+            start: null,
+            end: $breakpoint-end,
+          ),
+      )
+    );
+  }
+
+  @if $breakpoint-start or $breakpoint-end {
+    $breakpoint-variations: map.merge(
+      $breakpoint-variations,
+      (
+        string.unquote($breakpoint-name): $breakpoint-value,
+      )
+    );
+  }
+
+  @if $breakpoint-start and $breakpoint-end {
+    $breakpoint-variations: map.merge(
+      $breakpoint-variations,
+      (
+        (string.unquote($breakpoint-name) + '+'):
+          (
+            start: $breakpoint-start,
+            end: null,
+          ),
+      )
+    );
+  }
+}
+
+/// Generates a media query that targets the given breakpoint
+///
+/// @parameter {String} $name - The breakpoint's name
+/// @parameter {String} $hover [null] - A CSS hover media feature keyword value
+///
+/// @example scss - Browser windows at the *medium* breakpoint **and** above
+///   .c-list__item {
+///     @include breakpoint('medium+') {
+///       // Breakpoint styles
+///     }
+///   }
+///
+/// @example scss - Browser windows with a primary input mechanism that can hover over elements
+///   .c-list__item {
+///     @include breakpoint(null, 'hover') {
+///       // Breakpoint styles
+///     }
+///   }
+///
+/// @example scss - Browser windows at the *medium* breakpoint **and** above with a primary input mechanism that can not hover over elements
+///   .c-list__item {
+///     @include breakpoint('medium+', 'none') {
+///       // Breakpoint styles
+///     }
+///   }
+///
+@mixin breakpoint($breakpoint-name, $hover-feature: null) {
+  @if $breakpoint-name {
+    $breakpoint-variation: map.get($breakpoint-variations, $breakpoint-name);
+
+    @if $breakpoint-variation {
+      $breakpoint-start: map.get($breakpoint-variation, 'start');
+      $breakpoint-end: map.get($breakpoint-variation, 'end');
+      $query-string: 'screen and (';
+
+      @if $breakpoint-start {
+        $query-string: $query-string + 'min-width: ' + $breakpoint-start;
+      }
+
+      @if $breakpoint-start and $breakpoint-end {
+        $query-string: $query-string + ') and (';
+      }
+
+      @if $breakpoint-end {
+        $query-string: $query-string + 'max-width: ' + $breakpoint-end;
+      }
+
+      $query-string: $query-string + ')';
+
+      @if $hover-feature {
+        @if $hover-feature == 'hover' {
+          $query-string: $query-string + ' and (hover: hover)';
+        } @else if $hover-feature == 'none' {
+          $query-string: $query-string + ' and (hover: none)';
+        } @else {
+          @error 'Invalid hover media feature: expected "hover" or "none", got "#{$hover-feature}".';
+        }
+      }
+
+      @media #{$query-string} {
+        @content;
+      }
+    } @else {
+      $breakpoint-variation-keys: map.keys($breakpoint-variations);
+      $breakpoint-variation-length: list.index($breakpoint-variation-keys, list.nth($breakpoint-variation-keys, -1));
+      $breakpoint-variation-index: 0;
+      $breakpoint-variation-list: '';
+
+      @each $breakpoint-variation-key in $breakpoint-variation-keys {
+        $breakpoint-variation-index: $breakpoint-variation-index + 1;
+
+        @if $breakpoint-variation-index > 1 {
+          @if $breakpoint-variation-index == $breakpoint-variation-length {
+            $breakpoint-variation-list: $breakpoint-variation-list + ' or ';
+          } @else {
+            $breakpoint-variation-list: $breakpoint-variation-list + ', ';
+          }
+        }
+
+        $breakpoint-variation-list: $breakpoint-variation-list + '"#{string.unquote($breakpoint-variation-key)}"';
+      }
+
+      @error 'Invalid breakpoint: expected #{$breakpoint-variation-list}, got "#{$breakpoint-name}".';
+    }
+  } @else if $hover-feature {
+    @if $hover-feature == 'hover' {
+      @media (hover: hover) {
+        @content;
+      }
+    } @else if $hover-feature == 'none' {
+      @media (hover: none) {
+        @content;
+      }
+    } @else {
+      @error 'Invalid hover media feature: expected "hover" or "none", got "#{$hover-feature}".';
+    }
+  }
+}

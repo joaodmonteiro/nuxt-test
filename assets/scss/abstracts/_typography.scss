@@ -1,0 +1,50 @@
+@use 'scss/abstracts/font-metrics' as *;
+@use 'sass:math';
+
+/// Calculates the line height offset for the given line height
+///
+/// @parameter {Number} $line-height - The line height
+/// @return {Number} The line height offset
+///
+@function line-height-offset($line-height) {
+  // $line-height must be a unitless number
+  @if type-of($line-height) != number {
+    @error '#{$line-height} is not a number.';
+  } @else if not unitless($line-height) {
+    @error '#{$line-height} has a unit.';
+  }
+
+  @return math.div($ascent + math.abs($descent) - $line-height, 2);
+}
+
+/// Calculates the baseline trim for the given line height
+///
+/// @parameter {Number} $line-height - The line height
+/// @return {Number} The baseline trim
+///
+@function baseline-trim($line-height) {
+  // $line-height must be a unitless number
+  @if type-of($line-height) != number {
+    @error '#{$line-height} is not a number.';
+  } @else if not unitless($line-height) {
+    @error '#{$line-height} has a unit.';
+  }
+
+  @return math.abs($descent) - line-height-offset($line-height);
+}
+
+/// Calculates the cap height trim for the given line height
+///
+/// @parameter {Number} $line-height - The line height
+/// @return {Number} The cap height trim
+///
+@function cap-height-trim($line-height) {
+  // $line-height must be a unitless number
+  @if type-of($line-height) != number {
+    @error '#{$line-height} is not a number.';
+  } @else if not unitless($line-height) {
+    @error '#{$line-height} has a unit.';
+  }
+
+  @return $ascent - $cap-height - line-height-offset($line-height);
+}

@@ -1,0 +1,21 @@
+@font-face {
+  font-display: block;
+  font-family: 'Circular';
+  font-style: normal;
+  font-weight: 350;
+  src: url('fonts/CircularXXWeb-Book.woff2') format('woff2');
+}
+
+html {
+  background: var(--color-white);
+  font-kerning: normal;
+  font-size: 16px;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+}
+
+body {
+  color: var(--color-black);
+  font: var(--font-sm);
+}
